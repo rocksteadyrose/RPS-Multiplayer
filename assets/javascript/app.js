@@ -1,9 +1,3 @@
-
-//Create player objects and variables (PLAYERS: 1/2, CHOICE, LOSSES, NAME, WINS) (TURN)
-//If else statements for RPS
-//Chat box
-//Player leave and disconnect message and removes data from database
-
 // Initialize Firebase
 var config = {
     apiKey: "AIzaSyDdpVUiXA3Z_4BjUlIHqBgCXOeZpD-cGNo",
@@ -16,22 +10,28 @@ var config = {
   
   // Create a variable to reference the database
   var database = firebase.database();
+  // connectionsRef references a specific location in our database.
+  // All of our connections will be stored in this directory.
+  var connectionsRef = database.ref("/connections");
+  // '.info/connected' is a special location provided by Firebase that is updated every time
+// the client's connection state changes.
+// '.info/connected' is a boolean value, true if the client is connected and false if they are not.
+var connectedRef = database.ref(".info/connected");
+// var connectplayers = connectionsRef.child("/players");
 
-  var selectedPlayer = "none";
-  var chosenplayer1 = "not selected";
-  var chosenplayer2 = "not selected";
+
 
   var player1 = {
       name: '',
       choice: '',
       losses: 0,
       wins: 0,
+      status: 'not selected',
       turn: '',
-      message() {
+      message(playername) {
           $("#name-input").remove();
-          var greeting = $("<h3>").text("Hi " + player1.name + "!" + "You are Player 1!");
-          $(".greeting").append(greeting);
-      }
+          var greeting = $("<h3>").text("Hi " + playername + "!" + "You are Player 1!");
+          $(".greeting").append(greeting);}
   };
 
   var player2 = {
@@ -39,86 +39,59 @@ var config = {
     choice: '',
     losses: 0,
     wins: 0,
+    status: 'not selected',
     turn: '',
     message(playername) {
         $("#name-input").remove();
-        var greeting = $("<h3>").text("Hi " + player2.name + "!" + "You are Player 2!");
-        $(".greeting").append(greeting);
-    }
+        var greeting = $("<h3>").text("Hi " + playername + "!" + "You are Player 2!");
+        $(".greeting").append(greeting);}
 };
 
-// Capture Button Click
-$(document).on("click", "#add-user", function(event) {
-    // Don't refresh the page!
-    event.preventDefault();
+var player1name = player1.name;
+var player2name = player2.name;
+var player1status = player1.status;
+var player2status = player2.status;
 
-    if (chosenplayer1 && chosenplayer2) {
-    player1.name = $("#name-input").val().trim();
-    $("#add-user").attr("id", "player1ID");
-    chosenplayer1 = "selected";
-    chosenplayer2 = "selecting";
-    // player1.message();
+// When the client's connection state changes...
+connectedRef.on("value", function(snap) {
+
+  // If they are connected..
+  if (snap.val()) {
+
+    // Add user to the connections list.
+    var con = connectionsRef.push(true);
+
+    // Remove user from the connection list when they disconnect.
+    con.onDisconnect().remove();
+  }
+});
+
+
+function createUser(player) {
+
+    $(".playerinfo").html('<form role="form"><div class="form-group"><label for="name-input">Name:<input class="form-control" id="name-input" type="text"><button class="btn btn-default" id="' + player + '" + "type="start">Start</button></form>')
 }
-    else if (chosenplayer1 === "selected" && chosenplayer2 === "selecting") {
-        console.log(chosenplayer1 === "selected" && chosenplayer2 === "selecting");
-    player2.name = $("#name-input").val().trim();
-    // player2.message();
-    chosenplayer2 = "selected";}
-
-    database.ref().set({
-        name1: player1.name,
-        name2: player2.name
-      });
-     // Log the player names
-        console.log(player1.name);
-        console.log(player2.name);
-    });
 
 // At the initial load and subsequent value changes, get a snapshot of the stored data.
 // This function allows you to update your page in real-time when the firebase database changes.
 
-database.ref().on("value", function(snapshot) {
+database.ref().on("value", function(snapshot) { 
+        console.log(snapshot.val());
+    if (snapshot.val().name1 === undefined) {
+        console.log("player1 is true")
+        createUser("player1");
+        // {database.ref().update({
+        //         name1: "player1"})}
+    }
 
-    console.log(snapshot.val());
-    console.log(snapshot.val().name1);
-    console.log(snapshot.val().name2);
-
-    player1.name = snapshot.val().name1;
-    player2.name = snapshot.val().name2;
-
-    if (chosenplayer1 === "selected") {
-        console.log("hi");
-        player1.name = snapshot.val().name1;
-        player1.message(player1.name);}
-
-    if (chosenplayer1 === "selected" && chosenplayer2 === "selected") {
-        player2.name = snapshot.val().name2;
-        player2.message(player2.name);}
-
-        // $("#name-display").text(snapshot.val().name);
+    // if (snapshot.val().name1 !== undefined) {
+    //      console.log("player2 is true")
+    //     createUser("player2");
+    //     {database.ref().update({
+    //         name2: "player2"})}
+    // }
 
     // Handle the errors
 }, function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
   });
-
-
-
-
-// if ((userGuess === "r") || (userGuess === "p") || (userGuess === "s")) {
-
-//     if ((userGuess === "r") && (computerGuess === "s")) {
-//       wins++;
-//     } else if ((userGuess === "r") && (computerGuess === "p")) {
-//       losses++;
-//     } else if ((userGuess === "s") && (computerGuess === "r")) {
-//       losses++;
-//     } else if ((userGuess === "s") && (computerGuess === "p")) {
-//       wins++;
-//     } else if ((userGuess === "p") && (computerGuess === "r")) {
-//       wins++;
-//     } else if ((userGuess === "p") && (computerGuess === "s")) {
-//       losses++;
-//     } else if (userGuess === computerGuess) {
-//       ties++;
-//     }}
