@@ -77,18 +77,40 @@ function createUser(player) {
 
 database.ref().on("value", function(snapshot) { 
         console.log(snapshot.val());
-    if (snapshot.val().name1 === undefined) {
-        console.log("player1 is true")
+    if ($(".btn-default").attr("id") === undefined) {
         createUser("player1");
-        // {database.ref().update({
-        //         name1: "player1"})}
+        {database.ref().update({
+                name1: "player1"})}
     }
 
-    // if (snapshot.val().name1 !== undefined) {
-    //      console.log("player2 is true")
-    //     createUser("player2");
-    //     {database.ref().update({
-    //         name2: "player2"})}
+    else if ($(".btn-default").attr("id") === "player1") {
+        createUser("player2");
+        {database.ref().update({
+            name2: "player2"})}
+    }
+
+// // Capture Button Click
+$(document).on('click', '.btn-default', function() {
+    event.preventDefault();
+    if ($(".btn-default").attr("id") === "player1") {
+        player1name = $("#name-input").val().trim();
+        player1.message(player1name);
+        database.ref().update({
+            name1: player1name,
+        });}
+
+    else if ($(".btn-default").attr("id") === "player2") {
+        player2name = $("#name-input").val().trim();
+        player2.message(player2name);
+        database.ref().update({
+            name2: player2name,
+        });}
+})
+    // if ($(".btn-default").attr("id") === "player2") {
+    //     player2name = $("#name-input").val().trim();
+    //     database.ref().update({
+    //         name2: player2name,
+    //       });
     // }
 
     // Handle the errors
