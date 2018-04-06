@@ -34,9 +34,11 @@ var connectedRef = database.ref(".info/connected");
             var greeting = $("<h3>").text("Hi " + playername + "!" + "You are Player 1!");
             $(".greeting").append(greeting);
             greetingComplete = true;
-            $(".greeting").addClass("panel", "panel-default")}
+            player1.status = "selected";
+            $(".greeting").addClass("panel panel-default player1greeting")}
             {database.ref().update({
-                status1: "selected"})}}
+                name1: player1.name,
+                status1: player1.status})}}
             };
 
   var player2 = {
@@ -52,17 +54,13 @@ var connectedRef = database.ref(".info/connected");
         var greeting = $("<h3>").text("Hi " + playername + "!" + "You are Player 2!");
         $(".greeting").append(greeting);
         greetingComplete = true;
-        $(".greeting").addClass("panel", "panel-default")}
+        player2.status = "selected";
+        $(".greeting").addClass("panel panel-default player2greeting")}
         {database.ref().update({
-            status2: "selected"})}}
+            name2: player2.name,
+            status2: player2.status})}}
         };
 
-var player1name = player1.name;
-var player2name = player2.name;
-var player1status = player1.status;
-var player2status = player2.status;
-var player1realname = '';
-var player2realname = '';
 var greetingComplete = false;
 
 
@@ -81,67 +79,72 @@ connectedRef.on("value", function(snap) {
 });
 
 
-function createUser(player) {
+function createUserID(player) {
+    $(".playerinfo").html('<form role="form"><div class="form-group"><label for="name-input">Name:<input class="form-control" id="' + player + 'input" type="text"><button class="btn btn-default" id="' + player + '" + "type="start">Start</button></form>')}
 
-    $(".playerinfo").html('<form role="form"><div class="form-group"><label for="name-input">Name:<input class="form-control" id="' + player + 'input" type="text"><button class="btn btn-default" id="' + player + '" + "type="start">Start</button></form>')
-}
+function characterInfoDOM(player) {
 
-function characterInfoDOM() {
-    $(".player1").html('<h3>' + player1realname + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>')
+    if ($(".greeting").hasClass("player1greeting")) {
+        $(".player1").html('<h3>' + player1.name + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>');
+        $(".player2").html('<h3>' + player + '</h3>' + '<h4> Wins' + player2.wins + '</h4>' + '<h4> Losses' + player2.losses + '</h4>');}
 
-    $(".player2").html('<h3>' + player2realname + '</h3>' + '<h4> Wins' + player2.wins + '</h4>' + '<h4> Losses' + player2.losses + '</h4>')
-    }
+    if ($(".greeting").hasClass("player2greeting")) {
+        $(".player1").html('<h3>' + player + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>');
+        $(".player2").html('<h3>' + player2.name + '</h3>' + '<h4> Wins' + player2.wins + '</h4>' + '<h4> Losses' + player2.losses + '</h4>');}
+    }   
+    
 
 // At the initial load and subsequent value changes, get a snapshot of the stored data.
 // This function allows you to update your page in real-time when the firebase database changes.
 
 database.ref().on("value", function(snapshot) { 
         console.log(snapshot.val());
-    if ($(".btn-default").attr("id") === undefined) {
-        createUser("player1");
+    //when the window pops up, if the start button has an id of 'initial button,' give the button an id of player1 and update firebase
+    if ($(".btn-default").attr("id") === "initialbutton") {
+        createUserID("player1");
         {database.ref().update({
             name1: "player1"})}
     }
-
+    //when the window pops up, if the start button has an id of 'player1,' give the button an id of player2 and update firebase 
     else if ($(".btn-default").attr("id") === "player1") {
-        createUser("player2");
+        createUserID("player2");
         {database.ref().update({
-            name2: "player2"})}
-    }
+            name2: "player2"})}}
 
     //If their snapshot from their ref matches the name they typed in as opposed to 'player1'/'player2'
-    if (snapshot.val().name1 === player1realname) {
-        characterInfoDOM();
-        player1.message(player1realname);
+    if (snapshot.val().name1 === player1.name) {
+        player1.message(player1.name);
     }
 
-    if (snapshot.val().name2 === player2realname) {
-        characterInfoDOM();
-        player2.message(player2realname);
+    if (snapshot.val().name2 === player2.name) {
+        player2.message(player2.name);
     }
 
-    if (snapshot.val().status1 === "selected" && snapshot.val().name2 !== "player2") { 
-        characterInfoDOM(player2realname);
+    //When the Player 1 name field has been inputted
+    if (snapshot.val().status1 === player1.status && snapshot.val().name1 !== "player1") { 
+        characterInfoDOM(snapshot.val().name2);
     }
 
-    if (snapshot.val().status2 === "selected" && snapshot.val().name1 !== "player1") {
-        characterInfoDOM(player1realname);
+    //When the Player 2 name field has been inputted
+    if (snapshot.val().status2 === player2.status && snapshot.val().name2 !== "player2") {
+        characterInfoDOM(snapshot.val().name1);
     }
 
 // // Capture Button Click
 $(document).on('click', '.btn-default', function() {
     event.preventDefault();
     if ($("input").attr("id") === "player1input") {
-        player1realname = $("#player1input").val().trim();
+        player1.name = $("#player1input").val().trim();
         database.ref().update({
-            name1: player1realname,
+            name1: player1.name,
         });}
 
     if ($("input").attr("id") === "player2input") {
-        player2realname = $("#player2input").val().trim();
+        player2.name = $("#player2input").val().trim();
         database.ref().update({
-            name2: player2realname,
-        });}
+            name2: player2.name,
+        });
+    }
 })
 
     // Handle the errors
