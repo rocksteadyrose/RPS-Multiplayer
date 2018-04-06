@@ -29,10 +29,15 @@ var connectedRef = database.ref(".info/connected");
       status: 'not selected',
       turn: '',
       message(playername) {
-          $("#name-input").remove();
-          var greeting = $("<h3>").text("Hi " + playername + "!" + "You are Player 1!");
-          $(".greeting").append(greeting);}
-  };
+        if (!greetingComplete) {
+            $(".playerinfo").remove();
+            var greeting = $("<h3>").text("Hi " + playername + "!" + "You are Player 1!");
+            $(".greeting").append(greeting);
+            greetingComplete = true;
+            $(".greeting").addClass("panel", "panel-default")}
+            {database.ref().update({
+                status1: "selected"})}}
+            };
 
   var player2 = {
     name: '',
@@ -42,15 +47,24 @@ var connectedRef = database.ref(".info/connected");
     status: 'not selected',
     turn: '',
     message(playername) {
-        $("#name-input").remove();
+        if (!greetingComplete) {
+        $(".playerinfo").remove();
         var greeting = $("<h3>").text("Hi " + playername + "!" + "You are Player 2!");
-        $(".greeting").append(greeting);}
-};
+        $(".greeting").append(greeting);
+        greetingComplete = true;
+        $(".greeting").addClass("panel", "panel-default")}
+        {database.ref().update({
+            status2: "selected"})}}
+        };
 
 var player1name = player1.name;
 var player2name = player2.name;
 var player1status = player1.status;
 var player2status = player2.status;
+var player1realname = '';
+var player2realname = '';
+var greetingComplete = false;
+
 
 // When the client's connection state changes...
 connectedRef.on("value", function(snap) {
@@ -69,8 +83,14 @@ connectedRef.on("value", function(snap) {
 
 function createUser(player) {
 
-    $(".playerinfo").html('<form role="form"><div class="form-group"><label for="name-input">Name:<input class="form-control" id="name-input" type="text"><button class="btn btn-default" id="' + player + '" + "type="start">Start</button></form>')
+    $(".playerinfo").html('<form role="form"><div class="form-group"><label for="name-input">Name:<input class="form-control" id="' + player + 'input" type="text"><button class="btn btn-default" id="' + player + '" + "type="start">Start</button></form>')
 }
+
+function characterInfoDOM() {
+    $(".player1").html('<h3>' + player1realname + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>')
+
+    $(".player2").html('<h3>' + player2realname + '</h3>' + '<h4> Wins' + player2.wins + '</h4>' + '<h4> Losses' + player2.losses + '</h4>')
+    }
 
 // At the initial load and subsequent value changes, get a snapshot of the stored data.
 // This function allows you to update your page in real-time when the firebase database changes.
@@ -80,7 +100,7 @@ database.ref().on("value", function(snapshot) {
     if ($(".btn-default").attr("id") === undefined) {
         createUser("player1");
         {database.ref().update({
-                name1: "player1"})}
+            name1: "player1"})}
     }
 
     else if ($(".btn-default").attr("id") === "player1") {
@@ -89,29 +109,40 @@ database.ref().on("value", function(snapshot) {
             name2: "player2"})}
     }
 
+    //If their snapshot from their ref matches the name they typed in as opposed to 'player1'/'player2'
+    if (snapshot.val().name1 === player1realname) {
+        characterInfoDOM();
+        player1.message(player1realname);
+    }
+
+    if (snapshot.val().name2 === player2realname) {
+        characterInfoDOM();
+        player2.message(player2realname);
+    }
+
+    if (snapshot.val().status1 === "selected" && snapshot.val().name2 !== "player2") { 
+        characterInfoDOM(player2realname);
+    }
+
+    if (snapshot.val().status2 === "selected" && snapshot.val().name1 !== "player1") {
+        characterInfoDOM(player1realname);
+    }
+
 // // Capture Button Click
 $(document).on('click', '.btn-default', function() {
     event.preventDefault();
-    if ($(".btn-default").attr("id") === "player1") {
-        player1name = $("#name-input").val().trim();
-        player1.message(player1name);
+    if ($("input").attr("id") === "player1input") {
+        player1realname = $("#player1input").val().trim();
         database.ref().update({
-            name1: player1name,
+            name1: player1realname,
         });}
 
-    else if ($(".btn-default").attr("id") === "player2") {
-        player2name = $("#name-input").val().trim();
-        player2.message(player2name);
+    if ($("input").attr("id") === "player2input") {
+        player2realname = $("#player2input").val().trim();
         database.ref().update({
-            name2: player2name,
+            name2: player2realname,
         });}
 })
-    // if ($(".btn-default").attr("id") === "player2") {
-    //     player2name = $("#name-input").val().trim();
-    //     database.ref().update({
-    //         name2: player2name,
-    //       });
-    // }
 
     // Handle the errors
 }, function(errorObject) {
