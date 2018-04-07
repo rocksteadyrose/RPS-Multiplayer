@@ -78,24 +78,53 @@ connectedRef.on("value", function(snap) {
   }
 });
 
-
 function createUserID(player) {
     $(".playerinfo").html('<form role="form"><div class="form-group"><label for="name-input">Name:<input class="form-control" id="' + player + 'input" type="text"><button class="btn btn-default" id="' + player + '" + "type="start">Start</button></form>')}
 
-function characterInfoDOM(player) {
+function createInitialDiv(player){
+    if (player1.name === ""){
+        var createDiv = $("<div>").attr("id", player);
+        $(".panel-body").html(createDiv);
+        // $(".panel-default").html('<div id=' + player + 'id>');
+    }
 
-    if ($(".greeting").hasClass("player1greeting")) {
-        $(".player1").html('<h3>' + player1.name + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>');
-        $(".player2").html('<h3>' + player + '</h3>' + '<h4> Wins' + player2.wins + '</h4>' + '<h4> Losses' + player2.losses + '</h4>');}
+    else if (player2.name === ""){
+        var createDiv2 = $("<div>").attr("id", player);
+        $(".panel-body").html(createDiv2);
+        // $(".panel-default").html('<div id=' + player + 'id>');
+    }
+}
 
-    if ($(".greeting").hasClass("player2greeting")) {
-        $(".player1").html('<h3>' + player + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>');
-        $(".player2").html('<h3>' + player2.name + '</h3>' + '<h4> Wins' + player2.wins + '</h4>' + '<h4> Losses' + player2.losses + '</h4>');}
-    }   
-    
+function characterInfoDOM(firstplayer, secondplayer) {
 
-// At the initial load and subsequent value changes, get a snapshot of the stored data.
-// This function allows you to update your page in real-time when the firebase database changes.
+    //If first player and second player haven't been picked
+database.ref().on("value", function(snapshot) { 
+
+if (snapshot.val().name1 === "player1" && snapshot.val().name2 === "player2") {
+    $("#player1").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1 </h3><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
+
+    $("#player2").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1 </h3><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
+}
+
+//If first player has been picked but second player hasn't
+ if (snapshot.val().name1 !== "player1" && snapshot.val().name2 === "player2") {
+        $("#player1").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
+
+        $("#player2").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>')}
+
+//If first player hasn't been picked but second player has
+if (snapshot.val().name1 === "player1" && snapshot.val().name2 !== "player2"){
+    $("#player1").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>')
+
+    $("#player2").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>')}
+
+//If both havw been picked
+if (snapshot.val().name1 !== "player1" && snapshot.val().name2 !== "player2"){
+    $("#player1").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses +'</h4><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>')
+
+    $("#player2").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses +'</h4><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>')}
+})}
+
 
 database.ref().on("value", function(snapshot) { 
         console.log(snapshot.val());
@@ -104,12 +133,27 @@ database.ref().on("value", function(snapshot) {
         createUserID("player1");
         {database.ref().update({
             name1: "player1"})}
+            createInitialDiv("player1");
+            characterInfoDOM();
     }
     //when the window pops up, if the start button has an id of 'player1,' give the button an id of player2 and update firebase 
     else if ($(".btn-default").attr("id") === "player1") {
         createUserID("player2");
         {database.ref().update({
-            name2: "player2"})}}
+            name2: "player2"})}
+            createInitialDiv("player2");
+            characterInfoDOM();
+        }
+
+    // if ($(".btn-default").attr("id") === "player2") {
+    //         createUserID("player1");
+    //         createInitialDiv("player1");
+    //         characterInfoDOM();
+    //     } else if ($(".btn-default").attr("id") === "player1") {
+    //         createUserID("player2");
+    //             createInitialDiv("player2");
+    //             characterInfoDOM();
+    //         }
 
     //If their snapshot from their ref matches the name they typed in as opposed to 'player1'/'player2'
     if (snapshot.val().name1 === player1.name) {
@@ -122,12 +166,12 @@ database.ref().on("value", function(snapshot) {
 
     //When the Player 1 name field has been inputted
     if (snapshot.val().status1 === player1.status && snapshot.val().name1 !== "player1") { 
-        characterInfoDOM(snapshot.val().name2);
+        characterInfoDOM(snapshot.val().name1, snapshot.val().name2);
     }
 
     //When the Player 2 name field has been inputted
     if (snapshot.val().status2 === player2.status && snapshot.val().name2 !== "player2") {
-        characterInfoDOM(snapshot.val().name1);
+        characterInfoDOM(snapshot.val().name1, snapshot.val().name2);
     }
 
 // // Capture Button Click
@@ -142,7 +186,7 @@ $(document).on('click', '.btn-default', function() {
     if ($("input").attr("id") === "player2input") {
         player2.name = $("#player2input").val().trim();
         database.ref().update({
-            name2: player2.name,
+            name2: player2.name
         });
     }
 })
