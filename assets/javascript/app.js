@@ -29,6 +29,7 @@ var connectedRef = database.ref(".info/connected");
       status: 'not selected',
       turn: '',
       choice: '',
+      points: '' ,
       message(playername) {
         if (!greetingComplete) {
             $(".playerinfo").remove();
@@ -50,6 +51,7 @@ var connectedRef = database.ref(".info/connected");
         status: 'not selected',
         turn: '',
         choice: '',
+        points: '' ,
         message(playername) {
             if (!greetingComplete) {
             $(".playerinfo").remove();
@@ -86,7 +88,7 @@ connectedRef.on("value", function(snap) {
 function createUserID(player) {
     database.ref().once("value", function(snapshot) { 
     $(".playerinfo").html('<form role="form"><div class="form-group"><label for="name-input">Name:<input class="form-control" id="' + player + 'input" type="text"><button class="btn btn-default" id="' + player + '" + "type="start">Start</button></form>');
-
+    
     whosplaying = player;
  
     database.ref().update({
@@ -98,20 +100,23 @@ function createUserID(player) {
 
 function createInitialDiv(player){
     if (player1.name === ""){
+        $(".playerturn").attr("id", player + "turn");
+        $(".RPS").attr("id", "rps" + player);
         var createDiv = $("<div>").attr("id", player + "id");
-        $(".panel-body").html(createDiv);
+        $(".panel-body").append(createDiv);
         // $(".panel-default").html('<div id=' + player + 'id>');
     }
 
     if (player2.name === ""){
+        $(".playerturn").attr("id", player + "turn");
         var createDiv2 = $("<div>").attr("id", player + "id");
-        $(".panel-body").html(createDiv2);
+        $(".panel-body").append(createDiv2);
         // $(".panel-default").html('<div id=' + player + 'id>');
     }
 }
     
 
-function mainFunctionality(){
+function initialInputs(){
 database.ref().once("value", function(snapshot) { 
         console.log(snapshot.val());
     //when the window pops up, if the start button has an id of 'initial button,' give the button an id of player1 and update firebase
@@ -123,7 +128,7 @@ database.ref().once("value", function(snapshot) {
         console.log("null to player1")
         createUserID("player1");
         createInitialDiv("player1");
-        characterInfoDOM();
+        DOMFunctions();
     }
 
     else if (snapshot.val().whichPlayer
@@ -131,18 +136,13 @@ database.ref().once("value", function(snapshot) {
         console.log("player1 to player2")
         createUserID("player2");
         createInitialDiv("player2");
-        characterInfoDOM();
-    }
+        DOMFunctions();}
 
     //When the Player 1 name field has been inputted
-    if (snapshot.val().status1 === player1.status && snapshot.val().name1 !== "player1") { 
-        characterInfoDOM(snapshot.val().name1, snapshot.val().name2);
-    }
+    if (snapshot.val().status1 === player1.status && snapshot.val().name1 !== "player1") { DOMFunctions(snapshot.val().name1, snapshot.val().name2);}
 
     //When the Player 2 name field has been inputted
-    if (snapshot.val().status2 === player2.status && snapshot.val().name2 !== "player2") {
-        characterInfoDOM(snapshot.val().name1, snapshot.val().name2);
-    }
+    if (snapshot.val().status2 === player2.status && snapshot.val().name2 !== "player2") {DOMFunctions(snapshot.val().name1, snapshot.val().name2);}
 
 }), function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
@@ -166,7 +166,7 @@ $(document).on('click', '.btn', function() {
             whichPlayer: whosplaying});
         snapshot.val().whichPlayer;
         player1.message(player1a);
-        characterInfoDOM()}
+        DOMFunctions()}
 
     else if ($("input").attr("id") === "player2input") {
         console.log("player 2 name true");
@@ -179,11 +179,11 @@ $(document).on('click', '.btn', function() {
             whichPlayer: whosplaying});
         snapshot.val().whichPlayer;
         player2.message(player2a);
-        characterInfoDOM()}
+        DOMFunctions()}
         })
 });
 
-function characterInfoDOM(firstplayer, secondplayer) {
+function DOMFunctions(firstplayer, secondplayer) {
 
     //If first player and second player haven't been picked
 database.ref().on("value", function(snapshot) { 
@@ -213,6 +213,7 @@ if (snapshot.val().name1 !== undefined && snapshot.val().name2 !== undefined && 
 
     $("#player2id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses +'</h4><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>');
 }
+
 })}
 
 
@@ -227,22 +228,69 @@ function pickingTurns() {
             status1: player1.status,
             status2: player2.status,
             turn: snapshot.val().name1})
-        }})
-    
-    database.ref().on("value", function(snapshot) {
-
-        //PLAYER 1 INITIAL TURN
-        if (snapshot.val().status1 === "game ready" && snapshot.val().turn === snapshot.val().name1) {
-            
-            $("#player1id").append('<div class="row"><div class="col-md-12"><h3>' + "It's your turn!</h3>");
-
-            $("#player2id").append('<div class="row"><div class="col-md-12"><h3>'  + "Waiting for" + snapshot.val().name1 + "to choose!</h3>");
-
         }
-        })}
+    
+        //PLAYER 1 INITIAL TURN - UPDATE DOM
+
+        if (snapshot.val().status1 === "game ready" && snapshot.val().status2 === "game ready"){
+            
+            console.log("ok")
+            $("#player1turn").html('<div class="row"><div class="col-md-12"><h3>' + "It's your turn!</h3>");
+
+            $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>'  + "Waiting for" + snapshot.val().name1 + "to choose!</h3>");
+
+            player1.status = "choosing RPS";
+            player2.status = "waiting for player 2 to choose";
+            database.ref().update({
+                status1: player1.status,
+                status2: player2.status})
+            // snapshot.val().status1;
+        }
+    
+        if (snapshot.val().status1 === "waiting for player 2 to choose" && snapshot.val().status2 === "choosing RPS"){
+
+            $("#player1turn").html('<div class="row"><div class="col-md-12"><h3>' + "Waiting for" + snapshot.val().name2 + "to choose!</h3>");
+    
+            $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>'  + "It's your turn!</h3>");
+        }
+    
+    })}
+
+function RPS() {
+    database.ref().on("value", function(snapshot) {
+        //If Player 1 is choosing
+        if (snapshot.val().status1 === "choosing RPS") {
+        $("#rpsplayer1").html('<div class="row"><div class="col-md-12"><h3>"<button id="rock">"Rock</button></h3><h3>"<button id="paper">"Paper</button></h3><h3>"<button id="scissors">"Scissors</h3>');
+}
+
+    $(document).on('click', 'button', function() {
+        //If player 1 chose rock
+        if ($("button").attr("id") === "rock" && snapshot.val().status1 === "choosing RPS") {
+            $("#rpsplayer1").html('<div class="row"><div class="col-md-12"><h2>Rock</h2>');
+            player1.status = "waiting for player 2 to choose";
+            player2.status = "choosing RPS";
+                database.ref().update({
+                    status1: player1.status,
+                    status2: player2.status,
+                    turn: snapshot.val().name2})
+                    snapshot.val().name2;
+                }
+
+        if ($("button").attr("id") === "rock" && snapshot.val().status2 === "choosing RPS") {
+            console.log("true");
+            $("#rpsplayer2").html('<div class="row"><div class="col-md-12"><h2>Rock</h2>');   player1.status = "choosing RPS";
+            player2.status = "waiting for player 1 to choose";
+                database.ref().update({
+                    status1: player1.status,
+                    status2: player2.status,
+                    turn: snapshot.val().name1})}
+
+                    
+
+                })})}
 
 
-
-mainFunctionality();
+initialInputs();
 pickingTurns();
+RPS();
 
