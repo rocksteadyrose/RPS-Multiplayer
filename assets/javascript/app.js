@@ -263,6 +263,9 @@ function RPS() {
         $("#rpsplayer1").html('<div class="row"><div class="col-md-12"><h3>"<button id="rock">"Rock</button></h3><h3>"<button id="paper">"Paper</button></h3><h3>"<button id="scissors">"Scissors</h3>');
 }
 
+    if (snapshot.val().status2 === "choosing RPS") {
+    $("#rpsplayer2").html('<div class="row"><div class="col-md-12"><h3>"<button id="rock">"Rock</button></h3><h3>"<button id="paper">"Paper</button></h3><h3>"<button id="scissors">"Scissors</h3>');}
+
     $(document).on('click', 'button', function() {
         //If player 1 chose rock
         if ($("button").attr("id") === "rock" && snapshot.val().status1 === "choosing RPS") {
@@ -273,21 +276,10 @@ function RPS() {
                     status1: player1.status,
                     status2: player2.status,
                     turn: snapshot.val().name2})
-                    snapshot.val().name2;
                 }
 
-        if ($("button").attr("id") === "rock" && snapshot.val().status2 === "choosing RPS") {
-            console.log("true");
-            $("#rpsplayer2").html('<div class="row"><div class="col-md-12"><h2>Rock</h2>');   player1.status = "choosing RPS";
-            player2.status = "waiting for player 1 to choose";
-                database.ref().update({
-                    status1: player1.status,
-                    status2: player2.status,
-                    turn: snapshot.val().name1})}
-
-                    
-
-                })})}
+                })
+            })}
 
 
 initialInputs();
