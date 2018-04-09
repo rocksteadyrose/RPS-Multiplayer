@@ -90,7 +90,11 @@ function createUserID(player) {
     whosplaying = player;
  
     database.ref().update({
-        whichPlayer: whosplaying});
+        whichPlayer: whosplaying,
+        player1wins: player1.wins,
+        player2wins: player2.wins,
+        player1losses: player1.losses,
+        player2losses: player2.losses});
 
     snapshot.val().whichPlayer;
     })
@@ -98,6 +102,7 @@ function createUserID(player) {
 
 function createInitialDiv(player){
     if (player1.name === ""){
+        $(".playerwinner").attr("id", "winner" + player);
         $(".playerturn").attr("id", player + "turn");
         $(".RPS").attr("id", "rps" + player);
         var createDiv = $("<div>").attr("id", player + "id");
@@ -106,6 +111,7 @@ function createInitialDiv(player){
     }
 
     if (player2.name === ""){
+        $(".playerwinner").attr("id", "winner" + player);
         $(".playerturn").attr("id", player + "turn");
         var createDiv2 = $("<div>").attr("id", player + "id");
         $(".panel-body").append(createDiv2);
@@ -206,10 +212,10 @@ if (snapshot.val().name1 === undefined && snapshot.val().name2 !== undefined) {
 
 //If both have been picked
 
-if (snapshot.val().name1 !== undefined && snapshot.val().name2 !== undefined && snapshot.val().status1 === "selected" && snapshot.val().status2 === "selected"){
-    $("#player1id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses +'</h4><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>')
+if (snapshot.val().name1 !== undefined && snapshot.val().name2 !== undefined){
+    $("#player1id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses +'</h4><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player2.wins + '</h4>' + '<h4> Losses' + player2.losses + '</h4>')
 
-    $("#player2id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses +'</h4><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>');
+    $("#player2id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses +'</h4><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player2.wins + '</h4>' + '<h4> Losses' + player2.losses + '</h4>');
 }
 
 })}
@@ -226,10 +232,7 @@ function pickingTurns() {
             status1: player1.status,
             status2: player2.status,
             turn: snapshot.val().name1,
-            player1wins: player1.wins,
-            player2wins: player2.wins,
-            player1losses: player1.losses,
-            player2losses: player2.losses})
+            })
         }
     
         //PLAYER 1 INITIAL TURN - UPDATE DOM
@@ -263,20 +266,6 @@ function pickingTurns() {
             $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>'  + "It's your turn!</h3>");
         }
 
-        // //If Player 1 chose r, p, or s, update that they're waiting on other player
-        // if ((snapshot.val().chose1 === "rockp1") || (snapshot.val().chose1 === "paperp1") || (snapshot.val().chose1 === "scissorsp1")) {
-
-        //     $("#player1turn").html('<div class="row"><div class="col-md-12"><h3>' + "Waiting for" + snapshot.val().name2 + "to choose!</h3>");
-        //     $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>'  + "It's your turn!</h3>");
-        // }
-
-        //If Player 2 chose r, p, or s, update that they're waiting on other player
-        // else if ((snapshot.val().chose2 === "rockp2") || (snapshot.val().chose2 === "paperp2") ||(snapshot.val().chose2 === "scissorsp2")) {
-
-        //     $("#player1turn").html('<div class="row"><div class="col-md-12"><h3>' + "Waiting for" + snapshot.val().name2 + "to choose!</h3>");
-        //     $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>'  + "It's your turn!</h3>");
-        // }
-
     })}
 
 function RPS() {
@@ -303,7 +292,8 @@ function RPS() {
                     status1: player1.status,
                     status2: player2.status,
                     chose1: player1.choice,
-                    turn: snapshot.val().name2})}
+                    turn: snapshot.val().name2})
+                }
         //If player 2 chose rock
         else if (player2.choice === "rockp2" && snapshot.val().status2 === "choosing RPS") {
             $("#rpsplayer2").html('<div class="row"><div class="col-md-12"><h2>Rock</h2>');
@@ -336,7 +326,8 @@ function RPS() {
                     status1: player1.status,
                     status2: player2.status,
                     chose2: player2.choice,
-                    turn: snapshot.val().name1})}                             
+                    turn: snapshot.val().name1})
+                }                             
         
         //If player 1 chose scissors
         if (player1.choice === "scissorsp1" && snapshot.val().status1 === "choosing RPS") {
@@ -359,21 +350,197 @@ function RPS() {
                     status2: player2.status,
                     chose2: player2.choice,
                     turn: snapshot.val().name1})}                
-
-        //POINTS SYSTEM
-        //If player1 chose rock and player2 chose paper
-        if (snapshot.val().chose1 === "chose rock" && snapshot.val().chose2 === "chose paper") {
-            console.log("chose r and p");
-            database.ref().update({
-                player1wins: player1.wins++,
-                player2losses: player2.losses++})
-        } 
-
                 })
             })}
+
+
+    function points() {
+
+        database.ref().on("value", function(snapshot) {
+            
+            // database.ref().update({
+            //     player1wins: player1.wins,
+            //     player2losses: player2.losses})
+
+        //If player1 chose rock and player2 chose paper
+        if (snapshot.val().chose1 === "rockp1" && snapshot.val().chose2 === "paperp2") {
+            // snapshot.val().player1wins;
+            // snapshot.val().player2losses;
+
+            player2.wins++;
+            player1.losses++;
+
+            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name2 + 'wins!</h2>');
+            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name2 + 'wins!</h2>');
+
+            player1.choice = "n/a";
+            player2.choice = "n/a";
+
+            database.ref().update({
+                player1losses: player1.losses,
+                player2wins: player2.wins,
+                chose1: player1.choice,
+                chose2: player2.choice})  
+        
+            snapshot.val().player1losses;
+            snapshot.val().player2wins;
+            snapshot.val().chose1;
+            snapshot.val().chose2;
+            }  
+
+        //If player1 chose paper and player2 chose rock
+        else if (snapshot.val().chose1 === "paperp1" && snapshot.val().chose2 === "rockp2") {
+
+            player1.wins++;
+            player2.losses++; 
+
+            // snapshot.val().player1wins;
+            // snapshot.val().player2losses;
+
+            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name1 + 'wins!</h2>');
+            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name1 + 'wins!</h2>');
+
+            player1.choice = "n/a";
+            player2.choice = "n/a";
+
+            database.ref().update({
+                player1wins: player1.wins,
+                player2losses: player2.losses,
+                chose1: player1.choice,
+                chose2: player2.choice})  
+        
+            snapshot.val().player1wins;
+            snapshot.val().player2losses;
+            snapshot.val().chose1;
+            snapshot.val().chose2;  
+            }  
+
+        //If player1 chose rock and player2 chose scissors
+        else if (snapshot.val().chose1 === "rockp1" && snapshot.val().chose2 === "scissorsp2") {
+            player1.wins++;
+            player2.losses++;
+
+            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name1 + 'wins!</h2>');
+            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name1 + 'wins!</h2>');
+
+            player1.choice = "n/a";
+            player2.choice = "n/a";
+
+            database.ref().update({
+                player1wins: player1.wins,
+                player2losses: player2.losses,
+                chose1: player1.choice,
+                chose2: player2.choice})  
+        
+            snapshot.val().player1wins;
+            snapshot.val().player2losses;
+            snapshot.val().chose1;
+            snapshot.val().chose2;    
+            }  
+
+        //If player1 chose scissors and player2 chose rock
+        else if (snapshot.val().chose1 === "scissorsp1" && snapshot.val().chose2 === "rockp2") {
+            
+            player2.wins++;
+            player1.losses++;
+
+            // snapshot.val().player1wins;
+            // snapshot.val().player2losses;
+
+            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name2 + 'wins!</h2>');
+            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name2 + 'wins!</h2>');
+
+            player1.choice = "n/a";
+            player2.choice = "n/a";
+
+            database.ref().update({
+                player1losses: player1.losses,
+                player2wins: player2.wins,
+                chose1: player1.choice,
+                chose2: player2.choice})  
+        
+            snapshot.val().player1losses;
+            snapshot.val().player2wins;
+            snapshot.val().chose1;
+            snapshot.val().chose2;  
+            }  
+
+     //If player1 chose scissors and player2 chose paper
+     else if (snapshot.val().chose1 === "scissorsp1" && snapshot.val().chose2 === "paperp2") {
+        // snapshot.val().player1wins;
+        // snapshot.val().player2losses;
+
+        player1.wins++;
+        player2.losses++;
+
+        player1.choice = "n/a";
+        player2.choice = "n/a";
+
+        database.ref().update({
+            player1wins: player1.wins,
+            player2losses: player2.losses,
+            chose1: player1.choice,
+            chose2: player2.choice})  
+        
+            snapshot.val().player1wins;
+            snapshot.val().player2losses;
+            snapshot.val().chose1;
+            snapshot.val().chose2;   
+
+        $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name1 + 'wins!</h2>');
+        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name1 + 'wins!</h2>');
+        }  
+
+    //If player1 chose paper and player2 chose scissors
+    else if (snapshot.val().chose1 === "paperp1" && snapshot.val().chose2 === "scissorsp2") {
+        player1.losses++;
+        player2.wins++;
+
+        player1.choice = "n/a";
+        player2.choice = "n/a";
+
+        database.ref().update({
+            player1losses: player1.losses,
+            player2wins: player2.wins,
+            chose1: player1.choice,
+            chose2: player2.choice})  
+        
+            snapshot.val().player1losses;
+            snapshot.val().player2wins;
+            snapshot.val().chose1;
+            snapshot.val().chose2;    
+
+        // snapshot.val().player1wins;
+        // snapshot.val().player2losses;
+
+        $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name2 + 'wins!</h2>');
+        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name2 + 'wins!</h2>');
+        } 
+
+    //TIE GAME
+
+    if (snapshot.val().chose1 === "rockp1" && snapshot.val().chose2 === "rockp2" || snapshot.val().chose1 === "paperp1" && snapshot.val().chose2 === "paperp2" || snapshot.val().chose1 === "scissorsp1" && snapshot.val().chose2 === "scissorsp2") {
+        $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2> TIE! </h2>');
+        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2> TIE!</h2>');
+    }
+
+    //POINTS AT END
+    if (player1.wins === 5) {
+
+        $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>You win the game!</h2>'+ '<button + "type="restart">Restart</button></form>');
+        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name1 + 'wins the game!</h2>'+ '<button + "type="restart">Restart</button></form>');
+        }  
+
+    else if (player2.wins === 5) {
+            
+        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>You win the game!</h2>'+ '<button + "type="restart">Restart</button></form>');
+        $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.val().name2 + 'wins the game!</h2>'+ '<button + "type="restart">Restart</button></form>');
+        }
+    })}
 
 
 initialInputs();
 pickingTurns();
 RPS();
+points()
 
