@@ -23,7 +23,6 @@ var connectedRef = database.ref(".info/connected");
 
   var player1 = {
       name: '',
-      choice: '',
       losses: 0,
       wins: 0,
       status: 'not selected',
@@ -50,7 +49,6 @@ var connectedRef = database.ref(".info/connected");
         wins: 0,
         status: 'not selected',
         turn: '',
-        choice: '',
         points: '' ,
         message(playername) {
             if (!greetingComplete) {
@@ -87,7 +85,7 @@ connectedRef.on("value", function(snap) {
 
 function createUserID(player) {
     database.ref().once("value", function(snapshot) { 
-    $(".playerinfo").html('<form role="form"><div class="form-group"><label for="name-input">Name:<input class="form-control" id="' + player + 'input" type="text"><button class="btn btn-default" id="' + player + '" + "type="start">Start</button></form>');
+    $(".playerinfo").html('<form role="form"><div class="form-group"><label for="name-input">Name:<input class="form-control" id="' + player + 'input" type="text"><button class="btn btn-default" id="' + player + 'button" + "type="start">Start</button></form>');
     
     whosplaying = player;
  
@@ -227,56 +225,149 @@ function pickingTurns() {
         database.ref().update({
             status1: player1.status,
             status2: player2.status,
-            turn: snapshot.val().name1})
+            turn: snapshot.val().name1,
+            player1wins: player1.wins,
+            player2wins: player2.wins,
+            player1losses: player1.losses,
+            player2losses: player2.losses})
         }
     
         //PLAYER 1 INITIAL TURN - UPDATE DOM
 
         if (snapshot.val().status1 === "game ready" && snapshot.val().status2 === "game ready"){
             
-            console.log("ok")
             $("#player1turn").html('<div class="row"><div class="col-md-12"><h3>' + "It's your turn!</h3>");
 
             $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>'  + "Waiting for" + snapshot.val().name1 + "to choose!</h3>");
 
             player1.status = "choosing RPS";
-            player2.status = "waiting for player 2 to choose";
+            player2.status = "waiting for player 1 to choose";
             database.ref().update({
                 status1: player1.status,
                 status2: player2.status})
-            // snapshot.val().status1;
         }
     
-        if (snapshot.val().status1 === "waiting for player 2 to choose" && snapshot.val().status2 === "choosing RPS"){
+        //If it's Player 1's turn to choose
+        if (snapshot.val().status1 === "choosing RPS" && snapshot.val().status2 === "chosen"){ 
+
+            $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>' + "Waiting for" + snapshot.val().name1 + "to choose!</h3>");
+    
+            $("#player1turn").html('<div class="row"><div class="col-md-12"><h3>'  + "It's your turn!</h3>");
+        }
+
+        //If it's Player 2's turn to choose
+        else if (snapshot.val().status2 === "choosing RPS" && snapshot.val().status1 === "chosen"){
 
             $("#player1turn").html('<div class="row"><div class="col-md-12"><h3>' + "Waiting for" + snapshot.val().name2 + "to choose!</h3>");
     
             $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>'  + "It's your turn!</h3>");
         }
-    
+
+        // //If Player 1 chose r, p, or s, update that they're waiting on other player
+        // if ((snapshot.val().chose1 === "rockp1") || (snapshot.val().chose1 === "paperp1") || (snapshot.val().chose1 === "scissorsp1")) {
+
+        //     $("#player1turn").html('<div class="row"><div class="col-md-12"><h3>' + "Waiting for" + snapshot.val().name2 + "to choose!</h3>");
+        //     $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>'  + "It's your turn!</h3>");
+        // }
+
+        //If Player 2 chose r, p, or s, update that they're waiting on other player
+        // else if ((snapshot.val().chose2 === "rockp2") || (snapshot.val().chose2 === "paperp2") ||(snapshot.val().chose2 === "scissorsp2")) {
+
+        //     $("#player1turn").html('<div class="row"><div class="col-md-12"><h3>' + "Waiting for" + snapshot.val().name2 + "to choose!</h3>");
+        //     $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>'  + "It's your turn!</h3>");
+        // }
+
     })}
 
 function RPS() {
     database.ref().on("value", function(snapshot) {
-        //If Player 1 is choosing
+        //If Player 1 is choosing, create RPS buttons div
         if (snapshot.val().status1 === "choosing RPS") {
-        $("#rpsplayer1").html('<div class="row"><div class="col-md-12"><h3>"<button id="rock">"Rock</button></h3><h3>"<button id="paper">"Paper</button></h3><h3>"<button id="scissors">"Scissors</h3>');
-}
-
-    if (snapshot.val().status2 === "choosing RPS") {
-    $("#rpsplayer2").html('<div class="row"><div class="col-md-12"><h3>"<button id="rock">"Rock</button></h3><h3>"<button id="paper">"Paper</button></h3><h3>"<button id="scissors">"Scissors</h3>');}
+        $("#rpsplayer1").html('<div class="row"><div class="buttons col-md-12 buttonsplayer1"><h3><button data-val = "rockp1" id="rockp1">Rock</button></h3><h3><button data-val = "paperp1" id="paperp1">Paper</button></h3><h3><button data-val = "scissorsp1" id="scissorsp1">Scissors</button></h3>');
+}        //If Player 2 is choosing, create RPS buttons div
+        if (snapshot.val().status2 === "choosing RPS") {
+        $("#rpsplayer2").html('<div class="row"><div class="buttons col-md-12"><h3><button class = "buttonsplayer2" data-val = "rockp2" id="rockp2">Rock</button></h3><h3><button data-val = "paperp2" id="paperp2">Paper</button></h3><h3><button data-val = "scissorsp2" id="scissorsp2">Scissors</button></h3>');}
 
     $(document).on('click', 'button', function() {
-        //If player 1 chose rock
-        if ($("button").attr("id") === "rock" && snapshot.val().status1 === "choosing RPS") {
+ 
+        player1.choice = $(this).attr("id");
+        player2.choice = $(this).attr("id");
+        if (player2.choice === undefined) {player2.choice = "n/a"}
+
+        // If player 1 chose rock
+        if (player1.choice === "rockp1" && snapshot.val().status1 === "choosing RPS") { 
             $("#rpsplayer1").html('<div class="row"><div class="col-md-12"><h2>Rock</h2>');
-            player1.status = "waiting for player 2 to choose";
+            player1.status = "chosen";
             player2.status = "choosing RPS";
                 database.ref().update({
                     status1: player1.status,
                     status2: player2.status,
-                    turn: snapshot.val().name2})
+                    chose1: player1.choice,
+                    turn: snapshot.val().name2})}
+        //If player 2 chose rock
+        else if (player2.choice === "rockp2" && snapshot.val().status2 === "choosing RPS") {
+            $("#rpsplayer2").html('<div class="row"><div class="col-md-12"><h2>Rock</h2>');
+            player1.status = "choosing RPS";
+            player2.status = "chosen";
+                database.ref().update({
+                    status1: player1.status,
+                    status2: player2.status,
+                    chose2: player2.choice,
+                    turn: snapshot.val().name1})
                 }
+
+        //If player 1 chose paper
+         if (player1.choice === "paperp1" && snapshot.val().status1 === "choosing RPS") {
+            $("#rpsplayer1").html('<div class="row"><div class="col-md-12"><h2>Paper</h2>');
+            player1.status = "chosen";
+            player2.status = "choosing RPS";
+                database.ref().update({
+                    status1: player1.status,
+                    status2: player2.status,
+                    chose1: player1.choice,
+                    turn: snapshot.val().name2})}
+        //If player 2 chose paper
+        else if (player2.choice === "paperp2" && snapshot.val().status2 === "choosing RPS") {
+            console.log("paper");
+            $("#rpsplayer2").html('<div class="row"><div class="col-md-12"><h2>Paper</h2>');
+            player1.status = "choosing RPS";
+            player2.status = "chosen";
+             database.ref().update({
+                    status1: player1.status,
+                    status2: player2.status,
+                    chose2: player2.choice,
+                    turn: snapshot.val().name1})}                             
+        
+        //If player 1 chose scissors
+        if (player1.choice === "scissorsp1" && snapshot.val().status1 === "choosing RPS") {
+            $("#rpsplayer1").html('<div class="row"><div class="col-md-12"><h2>Scissors</h2>');
+            player1.status = "chosen";
+            player2.status = "choosing RPS";
+                database.ref().update({
+                    status1: player1.status,
+                    status2: player2.status,
+                    chose1: player1.choice,
+                    turn: snapshot.val().name2})}                
+
+        //If player 2 chose scissors
+        else if (player2.choice === "scissorsp2" && snapshot.val().status2 === "choosing RPS") {
+            $("#rpsplayer2").html('<div class="row"><div class="col-md-12"><h2>Scissors</h2>');
+            player1.status = "choosing RPS";
+            player2.status = "chosen";
+                database.ref().update({
+                    status1: player1.status,
+                    status2: player2.status,
+                    chose2: player2.choice,
+                    turn: snapshot.val().name1})}                
+
+        //POINTS SYSTEM
+        //If player1 chose rock and player2 chose paper
+        if (snapshot.val().chose1 === "chose rock" && snapshot.val().chose2 === "chose paper") {
+            console.log("chose r and p");
+            database.ref().update({
+                player1wins: player1.wins++,
+                player2losses: player2.losses++})
+        } 
 
                 })
             })}
