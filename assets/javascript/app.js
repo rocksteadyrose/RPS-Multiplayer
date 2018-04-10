@@ -128,8 +128,8 @@ function createInitialDiv(player){
 })
 }
 
-function chatBox() {
-    $(document).on('click', '.chatbutton', function() {
+
+$(document).on('click', '.chatbutton', function() {
     event.preventDefault();
 
         if ($(this).attr("id") === "player1chatbutton") {
@@ -137,9 +137,7 @@ function chatBox() {
             $("#player1messageinput").val('');
             database.ref().update({
                 chat1: chat1Text,
-                button1clicked: "true"
-            });
-            DOMFunctions();
+                button1clicked: "true"});
             }
         
         if ($(this).attr("id") === "player2chatbutton") {
@@ -148,10 +146,29 @@ function chatBox() {
             database.ref().update({
                 chat2: chat2Text,
                 button2clicked: "true"});
-            DOMFunctions();
             }
-        })  
-}
+
+        else {
+            database.ref().update({
+                button1clicked: "false",
+                button2clicked: "false"});
+        }
+        })
+
+// //Chatbox
+// database.ref().on("value", function(snapshot) { 
+//     console.log("button 1 clicked")
+//     if (snapshot.val().button1clicked === "true") {
+//     $("#player1chatbox").append(snapshot.val().name1 + ':' + snapshot.val().chat1 + '<br>');
+//     $("#player2chatbox").append(snapshot.val().name1 + ':' + snapshot.val().chat1 + '<br>');
+//     }
+//     else if (snapshot.val().button2clicked === "true") {
+//         console.log("button 2 clicked")
+//     $("#player2chatbox").append(snapshot.val().name2 + ':' + snapshot.val().chat2 + '<br>');
+//     $("#player1chatbox").append(snapshot.val().name2 + ':' + snapshot.val().chat2 + '<br>');
+//     }
+// })
+
 
 function initialInputs(){
 database.ref().once("value", function(snapshot) { 
@@ -176,10 +193,10 @@ database.ref().once("value", function(snapshot) {
         DOMFunctions();}
 
     //When the Player 1 name field has been inputted
-    if (snapshot.val().status1 === player1.status && snapshot.val().name1 !== "player1") { DOMFunctions(snapshot.val().name1, snapshot.val().name2);}
+    // if (snapshot.val().status1 === player1.status && snapshot.val().name1 !== "player1") { DOMFunctions(snapshot.val().name1, snapshot.val().name2);}
 
-    //When the Player 2 name field has been inputted
-    if (snapshot.val().status2 === player2.status && snapshot.val().name2 !== "player2") {DOMFunctions(snapshot.val().name1, snapshot.val().name2);}
+    // //When the Player 2 name field has been inputted
+    // if (snapshot.val().status2 === player2.status && snapshot.val().name2 !== "player2") {DOMFunctions(snapshot.val().name1, snapshot.val().name2);}
 
 }), function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
@@ -202,8 +219,7 @@ $(document).on('click', '.btn', function() {
             name1: player1a,
             whichPlayer: whosplaying});
         snapshot.val().whichPlayer;
-        player1.message(player1a);
-        DOMFunctions()}
+        player1.message(player1a)}
 
     else if ($("input").attr("id") === "player2input") {
         console.log("player 2 name true");
@@ -215,14 +231,13 @@ $(document).on('click', '.btn', function() {
             name2: player2a,
             whichPlayer: whosplaying});
         snapshot.val().whichPlayer;
-        player2.message(player2a);
-        DOMFunctions()}
+        player2.message(player2a)}
         })
 });
 
 function DOMFunctions(firstplayer, secondplayer) {
 
-    //If first player and second player haven't been picked
+//If first player and second player haven't been picked
 database.ref().on("value", function(snapshot) { 
 
 if (snapshot.val().name1 === undefined && snapshot.val().name2 === undefined) {
@@ -244,24 +259,21 @@ if (snapshot.val().name1 === undefined && snapshot.val().name2 !== undefined) {
     $("#player2id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>')}
 
 //If both have been picked
-
 if (snapshot.val().name1 !== undefined && snapshot.val().name2 !== undefined){
     $("#player1id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses +'</h4><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player2.wins + '</h4>' + '<h4> Losses' + player2.losses + '</h4>')
 
-    $("#player2id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses +'</h4><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player2.wins + '</h4>' + '<h4> Losses' + player2.losses + '</h4>');
-}
-})
+    $("#player2id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.val().name1 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses +'</h4><h3>' + snapshot.val().name2 + '</h3>' + '<h4> Wins' + player2.wins + '</h4>' + '<h4> Losses' + player2.losses + '</h4>');}
 
-database.ref().on("value", function(snapshot) { 
-if (snapshot.val().chat1 !== undefined && snapshot.val().button1clicked === "true") {
-    console.log("player 1 text");
-    $("#player2chatbox").append(snapshot.val().chat1 + '<br>');
-    $("#player1chatbox").append(snapshot.val().chat1 + '<br>'); 
-    }
-if (snapshot.val().chat2 !== undefined && snapshot.val().button2clicked === "true") {
-    console.log("player 2 text");
-    $("#player2chatbox").append(snapshot.val().chat2 + '<br>');
-    $("#player1chatbox").append(snapshot.val().chat2 + '<br>'); 
+//Chatbox: If player button 1 has been pressed and both players have been picked
+if (snapshot.val().button1clicked === "true" && snapshot.val().name1 !== undefined && snapshot.val().name2 !== undefined) {
+    $("#player1chatbox").append(snapshot.val().name1 + ':' + snapshot.val().chat1 + '<br>');
+    $("#player2chatbox").append(snapshot.val().name1 + ':' + snapshot.val().chat1 + '<br>')
+}
+
+//Chatbox: If player button 2 has been pressed and both players have been picked
+else if (snapshot.val().button2clicked === "true" && snapshot.val().name1 !== undefined && snapshot.val().name2 !== undefined) {
+    $("#player2chatbox").append(snapshot.val().name2 + ':' + snapshot.val().chat2 + '<br>');
+    $("#player1chatbox").append(snapshot.val().name2 + ':' + snapshot.val().chat2 + '<br>');
 }
 })
 }
@@ -583,7 +595,6 @@ function RPS() {
     })}
 
 initialInputs();
-chatBox();
 pickingTurns();
 RPS();
-points()
+points();
