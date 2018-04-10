@@ -128,6 +128,30 @@ function createInitialDiv(player){
 })
 }
 
+function chatBox() {
+    $(document).on('click', '.chatbutton', function() {
+    event.preventDefault();
+
+        if ($(this).attr("id") === "player1chatbutton") {
+            var chat1Text = $("#player1messageinput").val().trim();
+            $("#player1messageinput").val('');
+            database.ref().update({
+                chat1: chat1Text,
+                button1clicked: "true"
+            });
+            DOMFunctions();
+            }
+        
+        if ($(this).attr("id") === "player2chatbutton") {
+            var chat2Text = $("#player2messageinput").val().trim();
+            $("#player2messageinput").val('');
+            database.ref().update({
+                chat2: chat2Text,
+                button2clicked: "true"});
+            DOMFunctions();
+            }
+        })  
+}
 
 function initialInputs(){
 database.ref().once("value", function(snapshot) { 
@@ -228,29 +252,8 @@ if (snapshot.val().name1 !== undefined && snapshot.val().name2 !== undefined){
 }
 })
 
-$(document).on('click', '.chatbutton', function() {
-    event.preventDefault();
-
-    if ($(this).attr("id") === "player1chatbutton") {
-        var chat1Text = $("#player1messageinput").val().trim();
-        $("#player1messageinput").val('');
-        database.ref().update({
-            chat1: chat1Text,
-            button1clicked: "true"
-        });
-        DOMFunctions();
-        }
-    
-    if ($(this).attr("id") === "player2chatbutton") {
-        var chat2Text = $("#player2messageinput").val().trim();
-        $("#player2messageinput").val('');
-        database.ref().update({
-            chat2: chat2Text,
-            button2clicked: "true"});
-        DOMFunctions();
-        }
-
-    if (snapshot.val().chat1 !== undefined && snapshot.val().button1clicked === "true") {
+database.ref().on("value", function(snapshot) { 
+if (snapshot.val().chat1 !== undefined && snapshot.val().button1clicked === "true") {
     console.log("player 1 text");
     $("#player2chatbox").append(snapshot.val().chat1 + '<br>');
     $("#player1chatbox").append(snapshot.val().chat1 + '<br>'); 
@@ -580,7 +583,7 @@ function RPS() {
     })}
 
 initialInputs();
-// chatBox();
+chatBox();
 pickingTurns();
 RPS();
 points()
