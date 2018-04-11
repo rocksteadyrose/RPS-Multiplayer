@@ -19,8 +19,6 @@ var config = {
 var connectedRef = database.ref(".info/connected");
 // var connectplayers = connectionsRef.child("/players");
 
-
-
   var player1 = {
       name: '',
       losses: 0,
@@ -67,6 +65,8 @@ var greetingComplete = false;
 var whosplaying = null;
 var player1a = player1.name;
 var player2a = player2.name;
+var newOpponent1 = null;
+var newOpponent2 = null;
 
 
 // When the client's connection state changes...
@@ -157,30 +157,32 @@ function createInitialDiv(player){
                     button2clicked: "false"})}
                 })
 
-// //Chatbox
+//Chatbox
 database.ref().on("value", function(snapshot) { 
     if (snapshot.child("chat").val().button1clicked === "true" && snapshot.child("players/player1").val().name1 !== undefined) {
 
     $("#player1chatbox").append(snapshot.child("players/player1").val().name1 + ':' + snapshot.child("chat").val().chattext1 + '<br>');
-    $("#player2chatbox").append(snapshot.child("players/player2").val().name2 + ':' + snapshot.child("chat").val().chattext1 + '<br>');
+    $("#player2chatbox").append(snapshot.child("players/player1").val().name1 + ':' + snapshot.child("chat").val().chattext1 + '<br>');
+        database.ref('/chat/').update({
+            button1clicked: "false"})
 }
     else if (snapshot.child("chat").val().button2clicked === "true" && snapshot.child("players/player2").val().name2 !== undefined) {
 
     $("#player2chatbox").append(snapshot.child("players/player2").val().name2 + ':' + snapshot.child("chat").val().chattext2 + '<br>');
     $("#player1chatbox").append(snapshot.child("players/player2").val().name2 + ':' + snapshot.child("chat").val().chattext2 + '<br>');
+        database.ref('/chat/').update({
+            button2clicked: "false"})
 }
     })
 
 function initialInputs(){
 database.ref().once("value", function(snapshot) { 
-        console.log(snapshot.val());
     //when the window pops up, if the start button has an id of 'initial button,' give the button an id of player1 and update firebase
 
         database.ref().update({
         whichPlayer: whosplaying});
 
     if (snapshot.val().whichPlayer === undefined) {
-        console.log("null to player1")
         createUserID("player1");
         createInitialDiv("player1");
         DOMFunctions();
@@ -188,7 +190,6 @@ database.ref().once("value", function(snapshot) {
 
     else if (snapshot.val().whichPlayer
     === "player1") {
-        console.log("player1 to player2")
         createUserID("player2");
         createInitialDiv("player2");
         DOMFunctions();}
@@ -205,7 +206,6 @@ $(document).on('click', '.btn', function() {
     database.ref().once("value", function(snapshot) { 
 
     if ($("input").attr("id") === "player1input") {
-        console.log("player 1 name true");
         player1a = $("#player1input").val().trim();
         createUserID("player1");
         createInitialDiv("player1");
@@ -218,7 +218,6 @@ $(document).on('click', '.btn', function() {
         player1.message(player1a)}
 
     else if ($("input").attr("id") === "player2input") {
-        console.log("player 2 name true");
         player2a = $("#player2input").val().trim();
         createUserID("player2");
         createInitialDiv("player2");
@@ -252,7 +251,15 @@ if (snapshot.child("players/player1").val().name1 === undefined && snapshot.chil
 if (snapshot.child("players/player1").val().name1 === undefined && snapshot.child("players/player2").val().name2 !== undefined) {
     $("#player1id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3><h3>' + snapshot.child("players/player2").val().name2 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>')
 
-    $("#player2id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3><h3>' + ssnapshot.child("players/player2").val().name2 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>')}
+    $("#player2id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3><h3>' + snapshot.child("players/player2").val().name2 + '</h3>' + '<h4> Wins' + player1.wins + '</h4>' + '<h4> Losses' + player1.losses + '</h4>')}
+
+// //If first left game
+// if (snapshot.child("players/player1").val().name1 === undefined && snapshot.child("players/player2").val().name2 !== undefined && newOpponent1 === true) {
+//     $("#player1id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1 </h3><div class="row"><div class="col-md-12"><h3> Waiting for new opponent</h3>')}
+
+// //If second player left game
+// if (snapshot.child("players/player2").val().name2 === undefined && snapshot.child("players/player1").val().name1 !== undefined && newOpponent2 === true) {
+//     $("#player2id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1 </h3><div class="row"><div class="col-md-12"><h3> Waiting for new opponent</h3>')}
 
 //If both have been picked
 if (snapshot.child("players/player1").val().name1 !== undefined && snapshot.child("players/player2").val().name2 !== undefined){
@@ -375,7 +382,6 @@ function RPS() {
 
         //If player 1 chose paper
          if (player1.choice === "paperp1" && snapshot.child("players/player1").val().status1 === "choosing RPS") {
-             console.log("paper")
             $("#rpsplayer1").html('<div class="row"><div class="col-md-12"><h2>Paper</h2>');
             player1.status = "chosen";
             player2.status = "choosing RPS";
@@ -616,6 +622,25 @@ function RPS() {
         $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + 'wins the game!</h2>'+ '<button + "type="restart">Restart</button></form>');
         }
     })}
+
+//IF PLAYER DISCONNECTS
+$(window).unload(function(){
+
+    if (whosplaying !== "player1") {
+
+        database.ref("/players/player2").remove();
+        newOpponent1 = true;
+        DOMFunctions();
+    }
+
+    else if (whosplaying !== "player2") {
+
+        database.ref("/players/player1").remove();
+        newOpponent2 = true;
+        DOMFunctions();
+        }
+
+});
 
 initialInputs();
 points();
