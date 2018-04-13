@@ -29,12 +29,12 @@ var connectedRef = database.ref(".info/connected");
       points: '' ,
       message(playername) {
         if (!greetingComplete) {
-            $(".playerinfo").remove();
+            $(".form-group").remove();
             var greeting = $("<h3>").text("Hi " + playername + "! " + "You are Player 1!");
-            $(".greeting").append(greeting);
+            $(".playerinfo").append(greeting);
             greetingComplete = true;
             player1.status = "selected";
-            $(".greeting").addClass("panel panel-default player1greeting")}
+            $(".playerinfo").addClass("player1greeting")}
             {database.ref("/players/player1").update({
                 name1: player1a,
                 status1: player1.status})}}
@@ -50,12 +50,12 @@ var connectedRef = database.ref(".info/connected");
         points: '' ,
         message(playername) {
             if (!greetingComplete) {
-            $(".playerinfo").remove();
+            $(".form-group").remove();
             var greeting = $("<h3>").text("Hi " + playername + "! " + "You are Player 2!");
-            $(".greeting").append(greeting);
+            $(".playerinfo").append(greeting);
             greetingComplete = true;
             player2.status = "selected";
-            $(".greeting").addClass("panel panel-default player2greeting")}
+            $(".playerinfo").addClass("player2greeting")}
             {database.ref("/players/player2").update({
                 name2: player2a,
                 status2: player2.status})}}
@@ -154,15 +154,15 @@ function createInitialDiv(player){
 database.ref().on("value", function(snapshot) { 
     if (snapshot.child("chat").val().button1clicked === "true" && snapshot.child("players/player1").val().name1 !== undefined) {
 
-    $("#player1chatbox").append(snapshot.child("players/player1").val().name1 + ':' + snapshot.child("chat").val().chattext1 + '<br>');
-    $("#player2chatbox").append(snapshot.child("players/player1").val().name1 + ':' + snapshot.child("chat").val().chattext1 + '<br>');
+    $("#player1chatbox").append(snapshot.child("players/player1").val().name1 + ': ' + snapshot.child("chat").val().chattext1 + '<br>');
+    $("#player2chatbox").append(snapshot.child("players/player1").val().name1 + ': ' + snapshot.child("chat").val().chattext1 + '<br>');
         database.ref('/chat/').update({
             button1clicked: "false"})
 }
     else if (snapshot.child("chat").val().button2clicked === "true" && snapshot.child("players/player2").val().name2 !== undefined) {
 
-    $("#player2chatbox").append(snapshot.child("players/player2").val().name2 + ':' + snapshot.child("chat").val().chattext2 + '<br>');
-    $("#player1chatbox").append(snapshot.child("players/player2").val().name2 + ':' + snapshot.child("chat").val().chattext2 + '<br>');
+    $("#player2chatbox").append(snapshot.child("players/player2").val().name2 + ': ' + snapshot.child("chat").val().chattext2 + '<br>');
+    $("#player1chatbox").append(snapshot.child("players/player2").val().name2 + ': ' + snapshot.child("chat").val().chattext2 + '<br>');
         database.ref('/chat/').update({
             button2clicked: "false"})
 }
@@ -336,13 +336,17 @@ function pickingTurns() {
 
 function RPS() {
     
+    var rockimg = "<img src='assets/images/rock2.png' width='180px'>";
+    var paperimg = "<img src='assets/images/paper2.png' width='180px'>";
+    var scissorsimg = "<img src ='assets/images/scissors2.png' width='180px'>";
+
     database.ref().once("value", function(snapshot) {
         //If Player 1 is choosing, create RPS buttons div
         if (snapshot.child("players/player1").val().status1 === "choosing RPS") {
-        $("#rpsplayer1").html('<div class="row"><div class="buttons col-md-12 buttonsplayer1"><h3><button data-val = "rockp1" id="rockp1">Rock</button></h3><h3><button data-val = "paperp1" id="paperp1">Paper</button></h3><h3><button data-val = "scissorsp1" id="scissorsp1">Scissors</button></h3>');
+        $("#rpsplayer1").html('<div class="row"><div class="col-md-12 buttonsplayer1"><h3><button class="rpsbuttons" data-val = "rockp1" id="rockp1">' + rockimg + '</button></h3><h3><button class="rpsbuttons" data-val= "paperp1" id="paperp1">' + paperimg + '</button></h3><h3><button class="rpsbuttons" data-val = "scissorsp1" id="scissorsp1">' + scissorsimg + '</button>');
 }        //If Player 2 is choosing, create RPS buttons div
         else if (snapshot.child("players/player2").val().status2 === "choosing RPS") {
-        $("#rpsplayer2").html('<div class="row"><div class="buttons col-md-12"><h3><button class = "buttonsplayer2" data-val = "rockp2" id="rockp2">Rock</button></h3><h3><button data-val = "paperp2" id="paperp2">Paper</button></h3><h3><button data-val = "scissorsp2" id="scissorsp2">Scissors</button></h3>');}
+            $("#rpsplayer2").html('<div class="row"><div class="col-md-12 buttonsplayer2"><h3><button class="rpsbuttons" data-val = "rockp2" id="rockp2">' + rockimg + '</button></h3><h3><button class="rpsbuttons" data-val= "paperp2" id="paperp2">' + paperimg + '</button></h3><h3><button class="rpsbuttons" data-val = "scissorsp2" id="scissorsp2">' + scissorsimg + '</button>');}
 
     $(document).on('click', 'button', function() {
  
@@ -461,8 +465,8 @@ function RPS() {
             player2.wins++;
             player1.losses++;
 
-            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + 'wins!</h2>');
-            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + 'wins!</h2>');
+            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + ' wins!</h2>');
+            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + ' wins!</h2>');
 
             player1.choice = "n/a";
             player2.choice = "n/a";
@@ -489,8 +493,8 @@ function RPS() {
             // snapshot.val().player1wins;
             // snapshot.val().player2losses;
 
-            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + 'wins!</h2>');
-            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + 'wins!</h2>');
+            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + ' wins!</h2>');
+            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + ' wins!</h2>');
 
             player1.choice = "n/a";
             player2.choice = "n/a";
@@ -513,8 +517,8 @@ function RPS() {
             player1.wins++;
             player2.losses++;
 
-            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + 'wins!</h2>');
-            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + 'wins!</h2>');
+            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + ' wins!</h2>');
+            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + ' wins!</h2>');
 
             player1.choice = "n/a";
             player2.choice = "n/a";
@@ -541,8 +545,8 @@ function RPS() {
             // snapshot.val().player1wins;
             // snapshot.val().player2losses;
 
-            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + 'wins!</h2>');
-            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + 'wins!</h2>');
+            $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + ' wins!</h2>');
+            $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + ' wins!</h2>');
 
             player1.choice = "n/a";
             player2.choice = "n/a";
@@ -583,8 +587,8 @@ function RPS() {
         snapshot.child("players/player1").val().chose1;
         snapshot.child("players/player2").val().chose2; 
 
-        $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + 'wins!</h2>');
-        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + 'wins!</h2>');
+        $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + ' wins!</h2>');
+        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + ' wins!</h2>');
         }  
 
     //If player1 chose paper and player2 chose scissors
@@ -611,8 +615,8 @@ function RPS() {
         // snapshot.val().player1wins;
         // snapshot.val().player2losses;
 
-        $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + 'wins!</h2>');
-        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + 'wins!</h2>');
+        $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + ' wins!</h2>');
+        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + ' wins!</h2>');
         } 
 
     //TIE GAME
@@ -626,13 +630,13 @@ function RPS() {
     if (player1.wins === 5) {
 
         $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>You win the game!</h2>'+ '<button + "type="restart">Restart</button></form>');
-        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + 'wins the game!</h2>'+ '<button + "type="restart">Restart</button></form>');
+        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + ' wins the game!</h2>'+ '<button + "type="restart">Restart</button></form>');
         }  
 
     else if (player2.wins === 5) {
             
         $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>You win the game!</h2>'+ '<button + "type="restart">Restart</button></form>');
-        $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + 'wins the game!</h2>'+ '<button + "type="restart">Restart</button></form>');
+        $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + ' wins the game!</h2>'+ '<button + "type="restart">Restart</button></form>');
         }
     })}
 
