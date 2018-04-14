@@ -157,46 +157,49 @@ database.ref().on("value", function(snapshot) {
     $("#player1chatbox").append(snapshot.child("players/player1").val().name1 + ': ' + snapshot.child("chat").val().chattext1 + '<br>');
     $("#player2chatbox").append(snapshot.child("players/player1").val().name1 + ': ' + snapshot.child("chat").val().chattext1 + '<br>');
         database.ref('/chat/').update({
-            button1clicked: "false"})
-}
+            button1clicked: "false"})}
     else if (snapshot.child("chat").val().button2clicked === "true" && snapshot.child("players/player2").val().name2 !== undefined) {
 
     $("#player2chatbox").append(snapshot.child("players/player2").val().name2 + ': ' + snapshot.child("chat").val().chattext2 + '<br>');
     $("#player1chatbox").append(snapshot.child("players/player2").val().name2 + ': ' + snapshot.child("chat").val().chattext2 + '<br>');
         database.ref('/chat/').update({
-            button2clicked: "false"})
+            button2clicked: "false"})}
+//CHAT: If player 1 leaves 
+
+if (snapshot.child("players/player1").val().chose1 !== undefined && snapshot.child("players/player2").val().name2 === undefined) {
+    $("#player1chatbox").html('<form><div class="row"><div class="col-md-12"><div class="row"><div class="col-md-12" id="player1chatbox"><div class="row"><div class="col-md-12"><input type="text" id="player1messageinput"></label><br><button class="chatbutton" type="Submit" id="player1chatbutton">Submit</button><br>Player 1 has left the game</div></div></form>');
+    $("#player2chatbox").html('<form><div class="row"><div class="col-md-12"><div class="row"><div class="col-md-12" id="player2chatbox"><div class="row"><div class="col-md-12"><input type="text" id="player2messageinput"></label><br><button class="chatbutton" type="Submit" id="player2chatbutton">Submit</button><br>Player 1 has left the game</div></div></form>')}
+
+//CHAT: If player 2 leaves
+
+if (snapshot.child("players/player2").val().chose2 !== undefined && snapshot.child("players/player1").val().name1 === undefined) {
+    $("#player1chatbox").html('<form><div class="row"><div class="col-md-12"><div class="row"><div class="col-md-12" id="player1chatbox"><div class="row"><div class="col-md-12"><input type="text" id="player1messageinput"></label><br><button class="chatbutton" type="Submit" id="player1chatbutton">Submit</button><br>Player 2 has left the game</div></div></form>');
+    $("#player2chatbox").html('<form><div class="row"><div class="col-md-12"><div class="row"><div class="col-md-12" id="player2chatbox"><div class="row"><div class="col-md-12"><input type="text" id="player2messageinput"></label><br><button class="chatbutton" type="Submit" id="player2chatbutton">Submit</button><br>Player 2 has left the game</div></div></form>')
 }
 
-if (snapshot.child("players/player2").val().status2 === "waiting for new p1") {
-    $("#player1chatbox").html('Player 1 has left the game');
-    $("#player2chatbox").html('Player 1 has left the game');
-}
-
-if (snapshot.child("players/player1").val().status1 === "waiting for new p2") {
-    $("#player1chatbox").html('Player 2 has left the game');
-    $("#player2chatbox").html('Player 2 has left the game');
-}
-    })
+//Chatbox blank message
+// if (snapshot.child("players/player1").val().chose1 !== undefined && snapshot.child("players/player2").val().name2 !== undefined || snapshot.child("players/player2").val().chose2 !== undefined && snapshot.child("players/player1").val().name1 !== undefined) {
+// $("#player1chatbox").html('<form><div class="row"><div class="col-md-12"><div class="row"><div class="col-md-12" id="player1chatbox"><div class="row"><div class="col-md-12"><input type="text" id="player1messageinput"></label><br><button class="chatbutton" type="Submit" id="player1chatbutton">Submit</button></div></div></form>');
+// $("#player2chatbox").html('<form><div class="row"><div class="col-md-12"><div class="row"><div class="col-md-12" id="player1chatbox"><div class="row"><div class="col-md-12"><input type="text" id="player1messageinput"></label><br><button class="chatbutton" type="Submit" id="player1chatbutton">Submit</button></div></div></form>');}
+// 
+})
 
 function initialInputs(){
 database.ref().once("value", function(snapshot) { 
         database.ref().update({
         whichPlayer: whosplaying});
-
-        player1.status = "game start";
-        player2.status = "game start";
         
+        // player1.status = "game start";
+        // player2.status = "game start";
 
-        database.ref('/players/player1/').update({
-            name1: player1.name,
-            status1: player1.status})
+        // database.ref('/players/player1/').update({
+        //     status1: player1.status})
 
-        database.ref('/players/player2/').update({
-            name2: player2.name,
-            status2: player2.status})
+        // database.ref('/players/player2/').update({
+        // //     status2: player2.status})
 
-        snapshot.child("players/player1").val().status1;
-        snapshot.child("players/player2").val().status2;
+        // snapshot.child("players/player1").val().status1;
+        // snapshot.child("players/player2").val().status2;
 //when the window pops up, if the start button has an id of 'initial button,' give the button an id of player1 and update firebase
     if (snapshot.val().whichPlayer === undefined) {
         createUserID("player1");
@@ -259,54 +262,72 @@ function DOMFunctions() {
 
 //If first player and second player haven't been picked
 database.ref().on("value", function(snapshot) { 
-if (snapshot.child("players/player1").val().status1 === "game start" && snapshot.child("players/player2").val().status2 === "game start") {
-    $("#player1id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1 </h3><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
+// if (snapshot.child("players/player2").val().name1 === undefined && snapshot.child("players/player2").val().name2 === undefined) {
+//     $("#player1id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1 </h3><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
 
-    $("#player2id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1 </h3><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
-}
+//     $("#player2id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1 </h3><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
+// }
 
-//If first player has been picked but second player hasn't
-//  if (snapshot.child("players/player1").val().status1 === "selected" && snapshot.child("players/player2").val().status2 !== "selected") {
-//     $("#player1id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.child("players/player1").val().name1 + '</h3>' + '<h4> Wins: ' + player1.wins + '</h4>' + '<h4> Losses: ' + player1.losses + '</h4><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
+// If first player has been picked but second player hasn't
+ if (snapshot.child("players/player1").val().status1 === "selected" && snapshot.child("players/player2").val().status2 !== "selected") {
+    $("#player1id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.child("players/player1").val().name1 + '</h3>' + '<h4> Wins: ' + player1.wins + '</h4>' + '<h4> Losses: ' + player1.losses + '</h4><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
 
-//     $("#player2id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.child("players/player1").val().name1 + '</h3>' + '<h4> Wins: ' + player1.wins + '</h4>' + '<h4> Losses: ' + player1.losses + '</h4><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>')}
+    $("#player2id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.child("players/player1").val().name1 + '</h3>' + '<h4> Wins: ' + player1.wins + '</h4>' + '<h4> Losses: ' + player1.losses + '</h4><div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>')}
 
 // //If first player hasn't been picked but second player has
-// if (snapshot.child("players/player1").val().status1 !== "selected" && snapshot.child("players/player2").val().status2 === "selected") {
-//     $("#player1id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3><h3>' + snapshot.child("players/player2").val().name2 + '</h3>' + '<h4> Wins: ' + player1.wins + '</h4>' + '<h4> Losses: ' + player1.losses + '</h4>')
+if (snapshot.child("players/player1").val().status1 !== "selected" && snapshot.child("players/player2").val().status2 === "selected") {
+    $("#player1id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3><h3>' + snapshot.child("players/player2").val().name2 + '</h3>' + '<h4> Wins: ' + player1.wins + '</h4>' + '<h4> Losses: ' + player1.losses + '</h4>')
 
-//     $("#player2id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3><h3>' + snapshot.child("players/player2").val().name2 + '</h3>' + '<h4> Wins: ' + player1.wins + '</h4>' + '<h4> Losses: ' + player1.losses + '</h4>')}
+    $("#player2id").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3><h3>' + snapshot.child("players/player2").val().name2 + '</h3>' + '<h4> Wins: ' + player1.wins + '</h4>' + '<h4> Losses: ' + player1.losses + '</h4>')}
 
 //Player reset
-if (snapshot.child("players/player1").val().status1 === "initializing" && snapshot.child("players/player1").val().chose1 === "reset") {
-        player2.status = "game ready";
-        player2.name = snapshot.child("players/player2").val().name2;
-        database.ref("/players/player2").update({
-            status2: player2.status,
-            name2: player2.name})}
-
-else if (snapshot.child("players/player2").val().status2 === "initializing" && snapshot.child("players/player2").val().chose2 === "reset") {
-    player1.status = "game ready";
-    player1.name = snapshot.child("players/player1").val().name1;
-    database.ref("/players/player1").update({
-        status1: player1.status,
-        name1: player1.name})
-    }
-
-// //If first player left game
-if (snapshot.child("players/player2").val().status2 === "waiting for new p1") { 
-   $("#player1turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3>');
-    $("#player1id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.child("players/player2").val().name2 + '</h3>' + '<h4> Wins: ' + player2.wins + '</h4>' + '<h4> Losses: ' + player2.losses + '</h4>')
-    $("#player2turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for another player to join.</h3>');
-    $("#player2turn").remove();
-
+if (snapshot.child("players/player2").val().name2 === undefined && snapshot.child("players/player1").val().status1 === "chosen" || snapshot.child("players/player2").val().name2 === undefined && snapshot.child("players/player1").val().status1 === "choosing RPS") {
+    $("#player1turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for another player to join</h3>');
+    $("#player2turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
+    // player1.status = "selected";
+    // player2.status = "selected";
+    // database.ref("/players/player1").update({
+    //         status1: player1.status})
+    // database.ref("/players/player2").update({
+    // //     status2: player2.status
+    // })
 }
+else if (snapshot.child("players/player1").val().name1 === undefined && snapshot.child("players/player1").val().chose1 !== undefined && snapshot.child("players/player2").val().status2 === "chosen" || snapshot.child("players/player1").val().name1 === undefined && snapshot.child("players/player1").val().chose1 !== undefined && snapshot.child("players/player2").val().status2 === "choosing RPS") {
+    $("#player2turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for another player to join</h3>');
+    $("#player1turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3>');
+    }
+// else if (snapshot.child("players/player2").val().status2 === undefined && snapshot.child("players/player1").val().status1 === "chosen" && snapshot.child("players/player1").val().chose2 !== undefined|| snapshot.child("players/player2").val().status2 === undefined && snapshot.child("players/player1").val().status1 === "choosing RPS" && snapshot.child("players/player1").val().chose2 !== undefined) {
+//     }
 
-// // If second player left game
-if (snapshot.child("players/player1").val().status1 === "waiting for new p2") { $("#player2turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
-    $("#player2id").html('<div class="row"><div class="col-md-12"><h3>' + snapshot.child("players/player1").val().name1 + '</h3>' + '<h4> Wins: ' + player1.wins + '</h4>' + '<h4> Losses: ' + player1.losses + '</h4>')
-    $("#player1turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for another player to join.</h3>');}
+if (snapshot.child("players/player1").val().status1 === "chosen" && snapshot.child("players/player2").val().status2 === "selected" || snapshot.child("players/player1").val().status1 === "choosing RPS" && snapshot.child("players/player2").val().status2 === "selected") {
+    $("#player1turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for another player to join</h3>');
+    $("#player2turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 2</h3>');
 
+snapshot.child("players/player1").val().status1;
+    snapshot.child("players/player1").val().status2;
+    player1.status = "selected";
+    player2.status = "selected";
+    database.ref("/players/player1").update({
+        status1: player1.status})
+        database.ref("/players/player2").update({
+            status2: player2.status})
+            snapshot.child("players/player1").val().status1;
+            snapshot.child("players/player1").val().status2;
+        }
+
+else if (snapshot.child("players/player2").val().status2 === "chosen" && snapshot.child("players/player1").val().status1 === "selected" || snapshot.child("players/player2").val().status2 === "choosing RPS" && snapshot.child("players/player1").val().status1 === "selected") {
+$("#player2turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for another player to join</h3>');
+    $("#player1turn").html('<div class="row"><div class="col-md-12"><h3> Waiting for Player 1</h3>');
+
+    player1.status = "selected";
+    player2.status = "selected";
+    database.ref("/players/player1").update({
+        status1: player1.status})
+        database.ref("/players/player2").update({
+            status2: player2.status})
+            snapshot.child("players/player1").val().status1;
+            snapshot.child("players/player1").val().status2;
+        }
 
 //If both have been picked
 if (snapshot.child("players/player1").val().name1 !== undefined && snapshot.child("players/player2").val().name2 !== undefined && snapshot.child("players/player1").val().status1 !== "waiting for new p2"){
@@ -690,28 +711,34 @@ $(window).unload(function(){
     
     if (whosplaying === "player2"){
         database.ref("/players/player2").remove();
-            player1.status = "waiting for new p2";
-            player2.status = "initializing";
-            database.ref("/players/player1").update({
-                status1: player1.status})
-            database.ref("/players/player2").update({
-                status2: player2.status,
-                chose2: "reset"})
-            database.ref().update({
-                whichPlayer: "player1"})}
+        database.ref().update({
+            whichPlayer: "player1"})
+            // player1.status = "waiting for new p2";
+            // player2.status = "initializing";
+            // database.ref("/players/player1").update({
+            //     status1: player1.status})
+            // database.ref("/players/player2").update({
+            //     status2: player2.status,
+            //     chose2: "reset"})
+            // database.ref().update({
+            //     whichPlayer: "player1"})
+            }
 
     else if (whosplaying === "player1"){
 
             database.ref("/players/player1").remove();
-                player1.status = "initializing";
-                player2.status = "waiting for new p1";
-                database.ref("/players/player1").update({
-                    status1: player1.status,
-                    chose1: "reset"})
-                database.ref("/players/player2").update({
-                    status2: player2.status})
-                database.ref().update({
-                    whichPlayer: "player2"})}
+            database.ref().update({
+                whichPlayer: "player2"})
+                // player1.status = "initializing";
+                // player2.status = "waiting for new p1";
+                // database.ref("/players/player1").update({
+                //     status1: player1.status,
+                //     chose1: "reset"})
+                // database.ref("/players/player2").update({
+                //     status2: player2.status})
+                // database.ref().update({
+                //     whichPlayer: "player2"})
+                }
                     })
 
             database.ref().on("value", function(snapshot) {
@@ -720,6 +747,5 @@ $(window).unload(function(){
 // }
 
 initialInputs();
-DOMFunctions();
 points();
 // playerExit();
