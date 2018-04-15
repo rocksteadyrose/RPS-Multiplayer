@@ -460,16 +460,10 @@ function RPS() {
                 chose1: player1.choice})
             database.ref("/players/player2").update({
                 player2wins: player2.wins,
-                chose2: player2.choice})  
-
-            snapshot.child("players/player1").player1losses;
-            snapshot.child("players/player2").player2wins
-            snapshot.child("players/player1").chose1;
-            snapshot.child("players/player2").chose2;}  
+                chose2: player2.choice})}  
 
         //If player1 chose paper and player2 chose rock
-        else if (snapshot.child("players/player1").chose1 === "paperp1" && snapshot.child("players/player2").val().chose2 === "rockp2") {
-
+        else if (snapshot.child("players/player1").val().chose1 === "paperp1" && snapshot.child("players/player2").val().chose2 === "rockp2") {
             player1.wins++;
             player2.losses++; 
 
@@ -484,13 +478,7 @@ function RPS() {
                 chose1: player1.choice})
             database.ref("/players/player2").update({
                 player2losses: player2.losses,
-                chose2: player2.choice})  
-
-            snapshot.child("players/player2").val().player2losses;
-            snapshot.child("players/player1").val().player1wins
-            snapshot.child("players/player1").val().chose1;
-            snapshot.child("players/player2").val().chose2;
-            }  
+                chose2: player2.choice})}  
 
         //If player1 chose rock and player2 chose scissors
         else if (snapshot.child("players/player1").val().chose1 === "rockp1" && snapshot.child("players/player2").val().chose2 === "scissorsp2") {
@@ -508,13 +496,7 @@ function RPS() {
                 chose1: player1.choice})
             database.ref("/players/player2").update({
                 player2losses: player2.losses,
-                chose2: player2.choice})  
-
-            snapshot.child("players/player2").val().player2losses;
-            snapshot.child("players/player1").val().player1wins
-            snapshot.child("players/player1").val().chose1;
-            snapshot.child("players/player2").val().chose2;
-            }  
+                chose2: player2.choice})}  
 
         //If player1 chose scissors and player2 chose rock
         else if (snapshot.child("players/player1").val().chose1 === "scissorsp1" && snapshot.child("players/player2").val().chose2 === "rockp2") {
@@ -533,13 +515,7 @@ function RPS() {
                 chose1: player1.choice})
             database.ref("/players/player2").update({
                 player2wins: player2.wins,
-                chose2: player2.choice})  
-
-            snapshot.child("players/player1").val().player1losses;
-            snapshot.child("players/player2").val().player2wins
-            snapshot.child("players/player1").val().chose1;
-            snapshot.child("players/player2").val().chose2;
-            }  
+                chose2: player2.choice})}  
 
      //If player1 chose scissors and player2 chose paper
      else if (snapshot.child("players/player1").val().chose1 === "scissorsp1" && snapshot.child("players/player2").val().chose2 === "paperp2") {
@@ -555,16 +531,10 @@ function RPS() {
             chose1: player1.choice})
         database.ref("/players/player2").update({
             player2losses: player2.losses,
-            chose2: player2.choice})  
-
-        snapshot.child("players/player2").val().player2losses;
-        snapshot.child("players/player1").val().player1wins
-        snapshot.child("players/player1").val().chose1;
-        snapshot.child("players/player2").val().chose2; 
+            chose2: player2.choice})
 
         $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + ' wins!</h2>');
-        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + ' wins!</h2>');
-        }  
+        $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player1").val().name1 + ' wins!</h2>');}  
 
     //If player1 chose paper and player2 chose scissors
     else if (snapshot.child("players/player1").val().chose1 === "paperp1" && snapshot.child("players/player2").val().chose2 === "scissorsp2") {
@@ -579,12 +549,7 @@ function RPS() {
             chose1: player1.choice})
         database.ref("/players/player2").update({
             player2wins: player2.wins,
-            chose2: player2.choice})  
-
-        snapshot.child("players/player2").val().player1losses;
-        snapshot.child("players/player1").val().player2wins
-        snapshot.child("players/player1").val().chose1;
-        snapshot.child("players/player2").val().chose2; 
+            chose2: player2.choice})
 
         $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + ' wins!</h2>');
         $("#winnerplayer2").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + ' wins!</h2>');} 
@@ -630,21 +595,17 @@ $(window).unload(function(){
     if (whosplaying === "player2"){
         database.ref("/players/player2").remove();
         database.ref().update({
-            whichPlayer: "player1"})
-            }
+            whichPlayer: "player1"})}
 
     else if (whosplaying === "player1"){
 
             database.ref("/players/player1").remove();
             database.ref().update({
-                whichPlayer: "player2"})
-                }
-                    })
+                whichPlayer: "player2"})}})
 
             database.ref().on("value", function(snapshot) {
             snapshot.child("players/player1").val().status1;
             snapshot.child("players/player2").val().status2;})
-// }
 
 initialInputs();
 choosePlayer();
