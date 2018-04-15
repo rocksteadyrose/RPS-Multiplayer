@@ -331,8 +331,7 @@ function pickingTurns() {
         else if (snapshot.child("players/player2").val().status2 === "choosing RPS" && snapshot.child("players/player1").val().status1 === "chosen"){
 
             $("#player1turn").html('<div class="row"><div class="col-md-12"><h3>' + "Waiting for " + snapshot.child("players/player2").val().name2 + " to choose!</h3>");
-            $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>'  + "It's your turn!</h3>");}
-        })}
+            $("#player2turn").html('<div class="row"><div class="col-md-12"><h3>'  + "It's your turn!</h3>");}})}
 
 function RPS() {
     
@@ -437,8 +436,7 @@ function RPS() {
                     turn: snapshot.child("players/player1").val().name1})
                 database.ref("/players/player2").update({
                     status2: player2.status,
-                    chose2: player2.choice})   
-                }})})}
+                    chose2: player2.choice})}})})}
 
     function points() {
 
@@ -573,32 +571,20 @@ function RPS() {
         $("#winnerplayer1").html('<div class="row"><div class="col-md-12"><h2>' + snapshot.child("players/player2").val().name2 + ' wins the game!</h2>'+ '<button type="restart1" id="restartp1" class="restartbutton">Restart</button></form>');}})}
 
     $(document).on('click', '.restartbutton', function() {
-        player1.wins = 0;
-        player2.wins = 0;
-        player1.losses = 0;
-        player2.losses = 0;
-        database.ref("/players/player1").set({
-            turn: null});
-        database.ref("/players/player2").set({
-            turn: null});
-            $("#winnerplayer1").remove();
-            $("#winnerplayer2").remove();
-            $("#rpsplayer1").remove();
-            $("#rpsplayer2").remove();
-            createUserID();
-            initialInputs();
-            choosePlayer();})
+    if ($(".restartbutton").attr("id") === "restartp1") {
+        if (whosplaying === "player1"){
+            window.location.reload();}}
+    else if ($(".restartbutton").attr("id") === "restartp2") {
+        window.location.reload();}})
 
 //IF PLAYER DISCONNECTS
 $(window).unload(function(){
-    
     if (whosplaying === "player2"){
         database.ref("/players/player2").remove();
         database.ref().update({
             whichPlayer: "player1"})}
 
     else if (whosplaying === "player1"){
-
             database.ref("/players/player1").remove();
             database.ref().update({
                 whichPlayer: "player2"})}})
